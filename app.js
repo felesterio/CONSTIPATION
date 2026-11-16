@@ -84,7 +84,7 @@
   function initGoogle() {
     if (!googleClientId) {
       googleStatus.textContent =
-        "Host: set GOOGLE_CLIENT_ID in config.js (Google Cloud OAuth Web client).";
+        "Sign-in not configured yet (needs GOOGLE_CLIENT_ID). Seat count should still load.";
       submitBtn.disabled = true;
       return;
     }
