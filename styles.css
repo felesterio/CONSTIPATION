@@ -51,7 +51,8 @@ body {
   height: 100%;
   max-width: none;
   object-fit: cover;
-  object-position: center 58%;
+  /* Desktop: keep wordmark in the lower-center sweet spot */
+  object-position: center 62%;
 }
 
 .stage {
@@ -253,14 +254,32 @@ body {
 }
 
 @media (max-width: 640px) {
-  .stage {
-    justify-content: flex-end;
-    padding: 1rem 1rem max(1.25rem, env(safe-area-inset-bottom));
+  /*
+    Portrait + cover crops left/right and chops the wide CONSTIPATION mark.
+    Fit the full frame to the viewport width so the wordmark stays whole and centered;
+    letterbox top/bottom with the page’s black background.
+  */
+  .bg {
+    align-items: center;
+    justify-content: center;
   }
 
   .bg img {
-    /* Keep CONSTIPATION wordmark in frame on tall phones */
-    object-position: center 62%;
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    object-fit: contain;
+    object-position: center center;
+  }
+
+  /* Form in the upper band so it doesn’t sit on the wordmark */
+  .stage {
+    justify-content: flex-start;
+    padding: max(1rem, env(safe-area-inset-top)) 1rem max(1.25rem, env(safe-area-inset-bottom));
+  }
+
+  .shell {
+    margin-top: 0.5rem;
   }
 
   .form.thirds {
