@@ -1,9 +1,7 @@
 // SCRIPT_URL = Apps Script Web app …/exec (Who has access: Anyone).
-// GOOGLE_CLIENT_ID = OAuth Web client from Google Cloud Console (Sign in with Google).
 window.SHOWING_CONFIG = {
   SCRIPT_URL:
     "https://script.google.com/macros/s/AKfycbzk48IEwayy-KesIzJYEvEGXtAEk4xmi0B2SOBzwrmzZep4F1sBZH5Apab_j2HZxC8Afg/exec",
-  GOOGLE_CLIENT_ID: "",
   CAPACITY: 50,
   SHOWING_LABEL: "Saturday, December 5, 2026, 9 PM",
   LOCATION_LABEL: "1608 N Washtenaw Ave, Chicago IL",
