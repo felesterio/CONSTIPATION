@@ -3,6 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' https://accounts.google.com https://apis.google.com https://www.gstatic.com https://script.google.com; style-src 'self' https://fonts.googleapis.com https://www.gstatic.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' data: https://www.gstatic.com https://*.googleusercontent.com; connect-src 'self' https://accounts.google.com https://oauth2.googleapis.com https://www.googleapis.com; frame-src https://accounts.google.com; base-uri 'none'; form-action 'self'"
+    />
     <title>CONSTIPATION — RSVP</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -11,6 +15,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -27,19 +32,24 @@
           Can't make it anymore backed up than it already is
         </p>
 
+        <div class="google-row">
+          <div id="google-btn"></div>
+          <p class="meta" id="google-status">Sign in with Google to RSVP</p>
+        </div>
+
         <form id="rsvp-form" class="form thirds" autocomplete="on">
           <div class="col-main">
             <label>
               Name
               <input name="name" type="text" required maxlength="120" autocomplete="name" />
             </label>
-            <button type="submit" id="submit-btn">RSVP</button>
+            <button type="submit" id="submit-btn" disabled>RSVP</button>
             <p class="status" id="form-status" role="status"></p>
           </div>
           <div class="col-note">
             <label>
               Write a message
-              <textarea name="note" rows="6" maxlength="500" placeholder=""></textarea>
+              <textarea name="note" rows="6" maxlength="500"></textarea>
             </label>
           </div>
         </form>
@@ -52,6 +62,10 @@
           <div>
             <dt>Name</dt>
             <dd id="ticket-name"></dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd id="ticket-email"></dd>
           </div>
           <div>
             <dt>Message</dt>

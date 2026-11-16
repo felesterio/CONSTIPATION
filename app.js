@@ -5,6 +5,7 @@
   const locationLabel = cfg.LOCATION_LABEL || "1608 N Washtenaw Ave, Chicago IL";
   const mapsUrl = cfg.LOCATION_MAPS_URL || "#";
   const scriptUrl = (cfg.SCRIPT_URL || "").trim().replace(/\/$/, "");
+  const googleClientId = (cfg.GOOGLE_CLIENT_ID || "").trim();
 
   const filledEl = document.getElementById("filled");
   const capacityEl = document.getElementById("capacity");
@@ -16,6 +17,10 @@
   const submitBtn = document.getElementById("submit-btn");
   const rsvpPanel = document.getElementById("rsvp-panel");
   const ticketPanel = document.getElementById("ticket-panel");
+  const googleStatus = document.getElementById("google-status");
+
+  /** @type {{ idToken: string, email: string } | null} */
+  let googleSession = null;
 
   showingEl.textContent = showingLabel;
   capacityEl.textContent = String(capacity);
@@ -28,13 +33,18 @@
     overWarn.classList.toggle("hidden", filled < capacity);
   }
 
+  function setText(id, value) {
+    // textContent only — never innerHTML with user/server strings
+    document.getElementById(id).textContent = value == null || value === "" ? "—" : String(value);
+  }
+
   function showTicket(payload) {
-    document.getElementById("ticket-name").textContent = payload.name;
-    document.getElementById("ticket-note").textContent = payload.note || "—";
-    document.getElementById("ticket-showing").textContent = showingLabel;
-    document.getElementById("ticket-location").textContent = locationLabel;
-    document.getElementById("ticket-filled").textContent =
-      String(payload.filled) + " / " + String(capacity);
+    setText("ticket-name", payload.name);
+    setText("ticket-email", payload.email);
+    setText("ticket-note", payload.note);
+    setText("ticket-showing", showingLabel);
+    setText("ticket-location", locationLabel);
+    setText("ticket-filled", String(payload.filled) + " / " + String(capacity));
     rsvpPanel.classList.add("hidden");
     ticketPanel.classList.remove("hidden");
   }
@@ -43,13 +53,89 @@
     return /docs\.google\.com\/spreadsheets\//i.test(url);
   }
 
+  function sanitizePlain(s, max) {
+    return String(s || "")
+      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "")
+      .trim()
+      .slice(0, max);
+  }
+
+  function parseJwtEmail(credential) {
+    try {
+      const payload = credential.split(".")[1];
+      const json = JSON.parse(
+        atob(payload.replace(/-/g, "+").replace(/_/g, "/"))
+      );
+      if (!json || !json.email) return null;
+      return {
+        email: String(json.email).toLowerCase(),
+        nameHint: json.name ? String(json.name) : "",
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function enableRsvp(email) {
+    googleStatus.textContent = "Signed in as " + email;
+    submitBtn.disabled = false;
+  }
+
+  function initGoogle() {
+    if (!googleClientId) {
+      googleStatus.textContent =
+        "Host: set GOOGLE_CLIENT_ID in config.js (Google Cloud OAuth Web client).";
+      submitBtn.disabled = true;
+      return;
+    }
+    if (!window.google || !google.accounts || !google.accounts.id) {
+      setTimeout(initGoogle, 200);
+      return;
+    }
+    google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: function (response) {
+        if (!response || !response.credential) {
+          statusEl.textContent = "Google sign-in failed.";
+          return;
+        }
+        const parsed = parseJwtEmail(response.credential);
+        if (!parsed) {
+          statusEl.textContent = "Could not read Google email.";
+          return;
+        }
+        googleSession = {
+          idToken: response.credential,
+          email: parsed.email,
+        };
+        const nameInput = form.querySelector('input[name="name"]');
+        if (nameInput && !nameInput.value && parsed.nameHint) {
+          nameInput.value = parsed.nameHint.slice(0, 120);
+        }
+        enableRsvp(parsed.email);
+        statusEl.textContent = "";
+      },
+      auto_select: true,
+      cancel_on_tap_outside: true,
+    });
+    google.accounts.id.renderButton(document.getElementById("google-btn"), {
+      theme: "outline",
+      size: "large",
+      text: "signin_with",
+      shape: "rectangular",
+      width: 280,
+    });
+    google.accounts.id.prompt();
+  }
+
   function scriptJsonp(params) {
     return new Promise(function (resolve, reject) {
       if (!scriptUrl) {
         reject(new Error("SCRIPT_URL is empty"));
         return;
       }
-      const cbName = "_showingCb" + String(Date.now()) + String(Math.floor(Math.random() * 1e6));
+      const cbName =
+        "_showingCb" + String(Date.now()) + String(Math.floor(Math.random() * 1e6));
       const timeout = setTimeout(function () {
         cleanup();
         reject(
@@ -93,8 +179,6 @@
   async function fetchCount() {
     if (!scriptUrl) {
       setFilled(0);
-      statusEl.textContent =
-        "Not connected yet. Deploy Apps Script and paste the /exec URL into config.js.";
       return;
     }
     if (looksLikeSheetEditUrl(scriptUrl)) {
@@ -108,21 +192,21 @@
       throw new Error((data && data.error) || "Bad count response");
     }
     setFilled(data.filled);
-    statusEl.textContent = "";
   }
 
   async function submitRsvp(name, note) {
-    if (!scriptUrl) {
-      throw new Error("SCRIPT_URL is empty — paste the Apps Script /exec URL into config.js.");
+    if (!googleSession || !googleSession.idToken) {
+      throw new Error("Sign in with Google first.");
     }
-    if (looksLikeSheetEditUrl(scriptUrl)) {
-      throw new Error("SCRIPT_URL is a Sheet edit link. Paste the /exec URL instead.");
+    if (!scriptUrl) {
+      throw new Error("SCRIPT_URL is empty.");
     }
     const data = await scriptJsonp({
       action: "rsvp",
       name: name,
       note: note,
       showing: showingLabel,
+      id_token: googleSession.idToken,
     });
     if (!data || data.ok !== true) {
       throw new Error((data && data.error) || "Submit rejected");
@@ -134,10 +218,14 @@
     event.preventDefault();
     statusEl.textContent = "";
     const fd = new FormData(form);
-    const name = String(fd.get("name") || "").trim();
-    const note = String(fd.get("note") || "").trim();
+    const name = sanitizePlain(fd.get("name"), 120);
+    const note = sanitizePlain(fd.get("note"), 500);
     if (!name) {
       statusEl.textContent = "Name is required.";
+      return;
+    }
+    if (!googleSession) {
+      statusEl.textContent = "Sign in with Google first.";
       return;
     }
     submitBtn.disabled = true;
@@ -146,6 +234,7 @@
       setFilled(data.filled);
       showTicket({
         name: name,
+        email: data.email || googleSession.email,
         note: note,
         filled: data.filled,
       });
@@ -155,6 +244,7 @@
     }
   });
 
+  initGoogle();
   fetchCount().catch(function (err) {
     statusEl.textContent = err.message || "Could not load seats.";
     setFilled(0);
