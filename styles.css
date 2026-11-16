@@ -1,11 +1,11 @@
 :root {
   --ink: #f4efe6;
-  --ink-dim: rgba(244, 239, 230, 0.72);
-  --panel: rgba(8, 6, 12, 0.72);
-  --line: rgba(244, 239, 230, 0.22);
+  --ink-dim: rgba(244, 239, 230, 0.78);
+  --line: rgba(244, 239, 230, 0.35);
   --accent: #e8ff4a;
   --warn: #ff7ad9;
   --focus: #7ad7ff;
+  --field: rgba(0, 0, 0, 0.45);
 }
 
 *,
@@ -33,18 +33,6 @@ body {
   z-index: 0;
 }
 
-.bg::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(5, 3, 8, 0.35) 0%,
-    rgba(5, 3, 8, 0.15) 40%,
-    rgba(5, 3, 8, 0.55) 100%
-  );
-}
-
 .stage {
   position: relative;
   z-index: 1;
@@ -54,68 +42,52 @@ body {
   padding: 1.5rem;
 }
 
-.panel {
-  width: min(26rem, 100%);
-  padding: 1.5rem 1.35rem 1.6rem;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  text-align: center;
+.shell {
+  width: min(42rem, 100%);
+  text-align: left;
 }
 
-.eyebrow {
-  margin: 0 0 0.55rem;
-  font-size: 0.75rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-
-.showing,
-.ticket-title {
-  margin: 0 0 0.65rem;
-  font-family: "Archivo Black", Impact, sans-serif;
-  font-weight: 400;
-  font-size: clamp(1.35rem, 4.5vw, 1.75rem);
-  line-height: 1.15;
-  letter-spacing: 0.01em;
-}
-
-.location {
-  margin: 0 0 0.85rem;
+.meta {
+  margin: 0 0 0.45rem;
   font-size: 0.95rem;
+  color: var(--ink);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
 }
 
-.location a {
+.meta a {
   color: var(--ink);
   text-underline-offset: 0.18em;
 }
 
-.location a:hover,
-.location a:focus-visible {
+.meta a:hover,
+.meta a:focus-visible {
   color: var(--focus);
 }
 
-.seats {
-  margin: 0 0 0.75rem;
-  font-size: 0.95rem;
-  color: var(--ink-dim);
-}
-
 .warn {
-  margin: 0 0 1rem;
-  padding: 0.55rem 0.65rem;
-  border: 1px dashed var(--warn);
+  margin: 0.5rem 0 0.85rem;
   color: var(--warn);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   line-height: 1.35;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
 }
 
-.form {
+.form.thirds {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem 1.25rem;
+  align-items: stretch;
+  margin-top: 0.85rem;
+}
+
+.col-main {
   display: grid;
   gap: 0.75rem;
-  text-align: left;
+  align-content: start;
+}
+
+.col-note {
+  display: grid;
 }
 
 .form label {
@@ -125,14 +97,16 @@ body {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--ink-dim);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
 }
 
-.form input {
+.form input,
+.form textarea {
   width: 100%;
   padding: 0.65rem 0.7rem;
   border: 1px solid var(--line);
   border-radius: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--field);
   color: var(--ink);
   font: inherit;
   font-size: 1rem;
@@ -140,13 +114,19 @@ body {
   letter-spacing: normal;
 }
 
-.form input:focus-visible {
+.form textarea {
+  height: 100%;
+  min-height: 8.5rem;
+  resize: vertical;
+}
+
+.form input:focus-visible,
+.form textarea:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 1px;
 }
 
 .form button {
-  margin-top: 0.25rem;
   padding: 0.75rem 1rem;
   border: 0;
   background: var(--accent);
@@ -155,6 +135,7 @@ body {
   font-size: 1rem;
   letter-spacing: 0.06em;
   cursor: pointer;
+  justify-self: start;
 }
 
 .form button:hover {
@@ -171,19 +152,25 @@ body {
   min-height: 1.2em;
   font-size: 0.85rem;
   color: var(--warn);
-  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+}
+
+.ticket-title {
+  margin: 0.35rem 0 0.75rem;
+  font-family: "Archivo Black", Impact, sans-serif;
+  font-size: clamp(1.35rem, 4.5vw, 1.75rem);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
 }
 
 .ticket-details {
-  margin: 1.1rem 0 1rem;
-  text-align: left;
+  margin: 0;
 }
 
 .ticket-details div {
   display: grid;
   grid-template-columns: 7.5rem 1fr;
   gap: 0.35rem 0.75rem;
-  padding: 0.45rem 0;
+  padding: 0.4rem 0;
   border-top: 1px solid var(--line);
 }
 
@@ -197,26 +184,25 @@ body {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-dim);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
 }
 
 .ticket-details dd {
   margin: 0;
   font-size: 0.98rem;
-}
-
-.ticket-foot {
-  margin: 0;
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+  white-space: pre-wrap;
 }
 
 .hidden {
   display: none !important;
 }
 
-@media (max-width: 420px) {
+@media (max-width: 640px) {
+  .form.thirds {
+    grid-template-columns: 1fr;
+  }
+
   .ticket-details div {
     grid-template-columns: 1fr;
   }

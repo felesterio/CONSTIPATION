@@ -15,34 +15,47 @@
   <body>
     <div class="bg" aria-hidden="true"></div>
     <main class="stage">
-      <section id="rsvp-panel" class="panel" aria-live="polite">
-        <p class="eyebrow">One night only</p>
-        <h1 class="showing" id="showing-label"></h1>
-        <p class="location">
+      <section id="rsvp-panel" class="shell" aria-live="polite">
+        <p class="meta" id="showing-label"></p>
+        <p class="meta">
           <a id="maps-link" href="#" target="_blank" rel="noopener noreferrer"></a>
         </p>
-        <p class="seats" id="seats-line">Seats filled: <span id="filled">—</span> / <span id="capacity">50</span></p>
+        <p class="meta" id="seats-line">
+          Seats filled: <span id="filled">—</span> / <span id="capacity">50</span>
+        </p>
         <p class="warn hidden" id="over-warn">
           Can't make it anymore backed up than it already is
         </p>
 
-        <form id="rsvp-form" class="form" autocomplete="on">
-          <label>
-            Name
-            <input name="name" type="text" required maxlength="120" autocomplete="name" />
-          </label>
-          <button type="submit" id="submit-btn">RSVP</button>
-          <p class="status" id="form-status" role="status"></p>
+        <form id="rsvp-form" class="form thirds" autocomplete="on">
+          <div class="col-main">
+            <label>
+              Name
+              <input name="name" type="text" required maxlength="120" autocomplete="name" />
+            </label>
+            <button type="submit" id="submit-btn">RSVP</button>
+            <p class="status" id="form-status" role="status"></p>
+          </div>
+          <div class="col-note">
+            <label>
+              Write a message
+              <textarea name="note" rows="6" maxlength="500" placeholder=""></textarea>
+            </label>
+          </div>
         </form>
       </section>
 
-      <section id="ticket-panel" class="panel ticket hidden" aria-live="polite">
-        <p class="eyebrow">Screenshot as your ticket!</p>
-        <h1 class="ticket-title">You're in</h1>
+      <section id="ticket-panel" class="shell ticket hidden" aria-live="polite">
+        <p class="meta">Screenshot as your ticket!</p>
+        <p class="ticket-title">You're in</p>
         <dl class="ticket-details">
           <div>
             <dt>Name</dt>
             <dd id="ticket-name"></dd>
+          </div>
+          <div>
+            <dt>Message</dt>
+            <dd id="ticket-note"></dd>
           </div>
           <div>
             <dt>Showing</dt>
@@ -57,7 +70,6 @@
             <dd id="ticket-filled"></dd>
           </div>
         </dl>
-        <p class="ticket-foot">CONSTIPATION · keep this screen</p>
       </section>
     </main>
     <script src="config.js"></script>

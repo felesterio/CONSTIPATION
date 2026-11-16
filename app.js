@@ -30,6 +30,7 @@
 
   function showTicket(payload) {
     document.getElementById("ticket-name").textContent = payload.name;
+    document.getElementById("ticket-note").textContent = payload.note || "—";
     document.getElementById("ticket-showing").textContent = showingLabel;
     document.getElementById("ticket-location").textContent = locationLabel;
     document.getElementById("ticket-filled").textContent =
@@ -42,7 +43,6 @@
     return /docs\.google\.com\/spreadsheets\//i.test(url);
   }
 
-  /** JSONP — Apps Script does not support CORS for fetch(). */
   function scriptJsonp(params) {
     return new Promise(function (resolve, reject) {
       if (!scriptUrl) {
@@ -111,7 +111,7 @@
     statusEl.textContent = "";
   }
 
-  async function submitRsvp(name) {
+  async function submitRsvp(name, note) {
     if (!scriptUrl) {
       throw new Error("SCRIPT_URL is empty — paste the Apps Script /exec URL into config.js.");
     }
@@ -121,6 +121,7 @@
     const data = await scriptJsonp({
       action: "rsvp",
       name: name,
+      note: note,
       showing: showingLabel,
     });
     if (!data || data.ok !== true) {
@@ -134,16 +135,18 @@
     statusEl.textContent = "";
     const fd = new FormData(form);
     const name = String(fd.get("name") || "").trim();
+    const note = String(fd.get("note") || "").trim();
     if (!name) {
       statusEl.textContent = "Name is required.";
       return;
     }
     submitBtn.disabled = true;
     try {
-      const data = await submitRsvp(name);
+      const data = await submitRsvp(name, note);
       setFilled(data.filled);
       showTicket({
         name: name,
+        note: note,
         filled: data.filled,
       });
     } catch (err) {
