@@ -2,7 +2,7 @@
 // GOOGLE_CLIENT_ID = OAuth Web client (must match Code.gs).
 window.SHOWING_CONFIG = {
   SCRIPT_URL:
-    "https://script.google.com/macros/s/AKfycbzPM0DNBzkE1gZ80KVG1C8w9aa66_8iK016mEhSLQvM25HDicBHZDgn7Y0sVx9XaI0IMw/exec",
+    "https://script.google.com/macros/s/AKfycbxhOagmgxruaSs2SNr5AorcDxDPjqJ2_kSSi8CtKeqTserc2lsXbcBM6cnbCFsx00rbxg/exec",
   GOOGLE_CLIENT_ID:
     "978955444393-1nbf0cmbi7gqaedadch36nm5t02as8bi.apps.googleusercontent.com",
   CAPACITY: 50,
