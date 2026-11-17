@@ -5,7 +5,6 @@
   const locationLabel = cfg.LOCATION_LABEL || "1608 N Washtenaw Ave, Chicago IL";
   const mapsUrl = cfg.LOCATION_MAPS_URL || "#";
   const scriptUrl = (cfg.SCRIPT_URL || "").trim().replace(/\/$/, "");
-  const googleClientId = (cfg.GOOGLE_CLIENT_ID || "").trim();
 
   const filledEl = document.getElementById("filled");
   const capacityEl = document.getElementById("capacity");
@@ -17,9 +16,6 @@
   const submitBtn = document.getElementById("submit-btn");
   const rsvpPanel = document.getElementById("rsvp-panel");
   const ticketPanel = document.getElementById("ticket-panel");
-
-  /** @type {{ idToken: string, email: string } | null} */
-  let googleSession = null;
 
   showingEl.textContent = showingLabel;
   capacityEl.textContent = String(capacity);
@@ -39,7 +35,6 @@
 
   function showTicket(payload) {
     setText("ticket-name", payload.name);
-    setText("ticket-email", payload.email);
     setText("ticket-note", payload.note);
     setText("ticket-showing", showingLabel);
     setText("ticket-location", locationLabel);
@@ -57,59 +52,6 @@
       .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "")
       .trim()
       .slice(0, max);
-  }
-
-  function parseJwtEmail(credential) {
-    try {
-      const payload = credential.split(".")[1];
-      const json = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
-      if (!json || !json.email) return null;
-      return {
-        email: String(json.email).toLowerCase(),
-        nameHint: json.name ? String(json.name) : "",
-      };
-    } catch (e) {
-      return null;
-    }
-  }
-
-  function applyGoogleCredential(credential) {
-    const parsed = parseJwtEmail(credential);
-    if (!parsed) return;
-    googleSession = { idToken: credential, email: parsed.email };
-    const nameInput = form.querySelector('input[name="name"]');
-    if (nameInput && !nameInput.value && parsed.nameHint) {
-      nameInput.value = parsed.nameHint.slice(0, 120);
-    }
-  }
-
-  /**
-   * No Sign-in button. If Chrome already has a Google session (and consent),
-   * One Tap / auto_select may hand us a token quietly. Otherwise RSVP stays open.
-   */
-  function initGoogleQuiet() {
-    if (!googleClientId) return;
-    if (!window.google || !google.accounts || !google.accounts.id) {
-      setTimeout(initGoogleQuiet, 200);
-      return;
-    }
-    google.accounts.id.initialize({
-      client_id: googleClientId,
-      callback: function (response) {
-        if (response && response.credential) {
-          applyGoogleCredential(response.credential);
-        }
-      },
-      auto_select: true,
-      cancel_on_tap_outside: true,
-      use_fedcm_for_prompt: true,
-    });
-    // May no-op, flash One Tap once, or auto-select — never a permanent button.
-    try {
-      google.accounts.id.prompt();
-    } catch (e) {
-      /* ignore */
-    }
   }
 
   function scriptJsonp(params) {
@@ -182,16 +124,12 @@
     if (!scriptUrl) {
       throw new Error("SCRIPT_URL is empty.");
     }
-    const params = {
+    const data = await scriptJsonp({
       action: "rsvp",
       name: name,
       note: note,
       showing: showingLabel,
-    };
-    if (googleSession && googleSession.idToken) {
-      params.id_token = googleSession.idToken;
-    }
-    const data = await scriptJsonp(params);
+    });
     if (!data || data.ok !== true) {
       throw new Error((data && data.error) || "Submit rejected");
     }
@@ -214,7 +152,6 @@
       setFilled(data.filled);
       showTicket({
         name: name,
-        email: data.email || (googleSession && googleSession.email) || "",
         note: note,
         filled: data.filled,
       });
@@ -224,7 +161,6 @@
     }
   });
 
-  initGoogleQuiet();
   fetchCount().catch(function (err) {
     statusEl.textContent = err.message || "Could not load seats.";
     setFilled(0);
