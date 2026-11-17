@@ -35,10 +35,8 @@
 
   function showTicket(payload) {
     setText("ticket-name", payload.name);
-    setText("ticket-note", payload.note);
     setText("ticket-showing", showingLabel);
     setText("ticket-location", locationLabel);
-    setText("ticket-filled", String(payload.filled) + " / " + String(capacity));
     rsvpPanel.classList.add("hidden");
     ticketPanel.classList.remove("hidden");
   }
