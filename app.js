@@ -126,7 +126,6 @@
       action: "rsvp",
       name: name,
       note: note,
-      showing: showingLabel,
     });
     if (!data || data.ok !== true) {
       throw new Error((data && data.error) || "Submit rejected");

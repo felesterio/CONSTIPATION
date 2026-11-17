@@ -18,16 +18,33 @@
   </head>
   <body>
     <div class="bg" aria-hidden="true">
+      <picture>
+        <source
+          media="(max-width: 1024px)"
+          srcset="assets/constipation-background-mobile.jpg"
+          width="1050"
+          height="580"
+        />
+        <img
+          class="bg-still"
+          src="assets/constipation-background.jpg"
+          alt=""
+          width="2096"
+          height="1096"
+          decoding="async"
+        />
+      </picture>
       <img
-        src="assets/constipation-background.jpg"
+        class="bg-wordmark"
+        src="assets/constipation-wordmark.png"
         alt=""
-        width="1600"
-        height="900"
+        width="790"
+        height="250"
         decoding="async"
       />
     </div>
     <main class="stage">
-      <section id="rsvp-panel" class="shell" aria-live="polite">
+      <section id="rsvp-panel" class="shell float-menu" aria-live="polite">
         <p class="meta" id="showing-label"></p>
         <p class="meta">
           <a id="maps-link" href="#" target="_blank" rel="noopener noreferrer"></a>
@@ -41,23 +58,25 @@
 
         <form id="rsvp-form" class="form thirds" autocomplete="on">
           <div class="col-main">
-            <label>
+            <label class="field-name">
               Name
-              <input name="name" type="text" required maxlength="120" autocomplete="name" />
+              <span class="name-row">
+                <input name="name" type="text" required maxlength="120" autocomplete="name" />
+                <button type="submit" id="submit-btn">RSVP</button>
+              </span>
             </label>
-            <button type="submit" id="submit-btn">RSVP</button>
             <p class="status" id="form-status" role="status"></p>
           </div>
           <div class="col-note">
             <label>
               Write a message
-              <textarea name="note" rows="6" maxlength="500"></textarea>
+              <textarea name="note" rows="3" maxlength="500"></textarea>
             </label>
           </div>
         </form>
       </section>
 
-      <section id="ticket-panel" class="shell ticket hidden" aria-live="polite">
+      <section id="ticket-panel" class="shell float-menu ticket hidden" aria-live="polite">
         <p class="meta">Screenshot as your ticket!</p>
         <p class="ticket-title">You're in</p>
         <dl class="ticket-details">
