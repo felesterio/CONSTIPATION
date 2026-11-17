@@ -102,14 +102,6 @@ body {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
 }
 
-.google-row {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.45rem;
-  margin: 0.75rem 0 0.25rem;
-}
-
 .form.thirds {
   display: flex;
   flex-direction: row;
